@@ -1,0 +1,118 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Environment / Virtualenvs
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.pdm-python
+
+# Installer / Dependency managers
+.pdm.toml
+.pdm-build/
+.pip-delete-this-directory.txt
+pip-log.txt
+.installed.cfg
+
+# Distribution / Packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+*.egg
+MANIFEST
+
+# Lock files (uncomment based on preference)
+# Pipenv
+# Pipfile.lock
+
+# Poetry
+# poetry.lock
+
+# PDM
+# pdm.lock
+
+# PyInstaller
+*.spec
+*.manifest
+
+# Type checking / Static analysis
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pytype/
+.pyre/
+
+# Translations
+*.mo
+*.pot
+
+# Databases / App-specific
+db.sqlite3
+db.sqlite3-journal
+*.log
+local_settings.py
+
+# Framework-specific
+# Django
+# (already included above)
+
+# Flask
+instance/
+.webassets-cache
+
+# Scrapy
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# Jupyter / IPython
+.ipynb_checkpoints
+profile_default/
+ipython_config.py
+
+# Editor / IDE settings
+# PyCharm (see JetBrains.gitignore for full)
+# .idea/
+.spyderproject
+.spyproject
+.ropeproject
+
+# Misc build systems
+.pybuilder/
+target/
+.site
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath
+*.sage.py
+
+# PEP 582
+__pypackages__/
+
+# PyPI config
+.pypirc
