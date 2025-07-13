@@ -1,0 +1,23 @@
+feature,importance
+apr_drg_code_oof_avg,6619
+apr_mdc_code_oof_avg,4807
+apr_severity_of_illness,1782
+age_group,1715
+apr_risk_of_mortality,1524
+gender,831
+patient_disposition_Home or Self Care,799
+White,706
+Admission_Elective,617
+patient_disposition_Home w/ Home Health Services,535
+Black/African American,519
+Admission_Emergency,495
+disease_burden,490
+patient_disposition_Skilled Nursing Home,472
+Admission_Urgent,310
+patient_disposition_Inpatient Rehabilitation Facility,277
+Disease_Mental Health,192
+Disease_Infectious Diseases,172
+apr_drg_code_enc,156
+patient_disposition_Left Against Medical Advice,131
+is_rare_drg,85
+Admission_Newborn,82
