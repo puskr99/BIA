@@ -200,7 +200,7 @@ layout = html.Div([
                 dcc.Dropdown(id='gender', options=[
                     {'label': 'Female', 'value': 0},
                     {'label': 'Male', 'value': 1},
-                    {'label': 'Unknown', 'value': 2}
+                    {'label': 'Others', 'value': 2}
                 ], value=1, style={'marginBottom': '15px'})
             ], style={'width': '48%', 'display': 'inline-block', 'paddingRight': '2%'}),
 
