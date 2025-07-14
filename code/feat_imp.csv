@@ -1,0 +1,21 @@
+feature,importance
+apr_drg_code_oof_avg,33.621282
+apr_severity_of_illness,19.279758
+apr_mdc_code_oof_avg,13.786079
+apr_risk_of_mortality,7.764912
+age_group,6.173325
+Admission_Emergency,3.082884
+Admission_Elective,2.522461
+is_rare_mdc,1.747513
+disease_burden,1.562378
+Admission_Urgent,1.459108
+gender,1.436046
+Black/African American,1.276640
+Disease_Mental Health,1.160762
+apr_drg_code_enc,1.087475
+is_rare_drg,0.864754
+White,0.861716
+chronic_load_score,0.840103
+Other Race,0.597902
+Disease_Respiratory Disorders,0.521680
+Disease_Infectious Diseases,0.353224

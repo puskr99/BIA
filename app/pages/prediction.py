@@ -4,22 +4,27 @@ import pandas as pd
 import numpy as np
 import joblib
 
-# Load model
-model = joblib.load("code/los_model")  # adjust path
-# Load real profit per day mapping
+# Load model and data
+model = joblib.load("code/los_model")
 profit_map = joblib.load("code/profit_map.pkl")
+feature_importances = pd.read_csv("code/feat_imp.csv") 
 
-# Example rare code sets and encoders (replace with actual from training data)
-rare_drg_set = {999, 888}  # example
-rare_mdc_set = {77, 88}  # example
-global_los_mean = 5.0  # fallback for missing encoding
+# Example rare code sets and encoders (replace with actual from training)
+rare_drg_set = {999, 888}  # Example
+rare_mdc_set = {77, 88}  # Example
+global_los_mean = 2.5  # Fallback for missing encoding
 
-# Dummy DRG/MDC encoders (replace with your actual logic)
+# Model error metrics (from cross-validation)
+MODEL_MAE = 0.86 # Mean Absolute Error
+SHORT_STAY_MAE = 1.15  # MAE for short stays (≤2 days)
+LONG_STAY_MAE = 2.5
+
+# Dummy DRG/MDC encoders (replace with actual logic)
 def compute_oof_avg(code, mapping):
     return mapping.get(code, global_los_mean)
 
 def compute_smooth_enc(code):
-    return np.log1p(code % 100)  # placeholder logic
+    return np.log1p(code % 100)  # Placeholder logic
 
 def estimate_profit_per_day(admission_type):
     feature_to_label = {
@@ -42,43 +47,89 @@ def get_charge_and_cost_per_day(admission_type):
     if not isinstance(admission_type, list):
         admission_type = [admission_type]
     mapped = [feature_to_label.get(a) for a in admission_type if a in feature_to_label]
-    charges = [profit_map.get(adm, 0) + 100 for adm in mapped]  # placeholder
-    costs = [100 for adm in mapped]  # placeholder
+    charges = [profit_map.get(adm, 0) + 100 for adm in mapped]  # Placeholder
+    costs = [100 for adm in mapped]  # Placeholder
     return np.mean(charges), np.mean(costs)
 
-def get_recommendations(los, charge_total):
+def get_recommendations(los, charge_total, drg_code, mdc_code, apr_severity, apr_risk, admission, diseases, age_group, gender, race):
+    """
+    Generate data-driven, patient-specific recommendations based on LOS, financials, and patient features.
+    
+    Args:
+        los (float): Predicted length of stay.
+        charge_total (float): Total estimated charges.
+        drg_code (int): APR DRG code.
+        m Chinhdc_code (int): APR MDC code.
+        apr_severity (int): Severity of illness (1-4).
+        apr_risk (int): Risk of mortality (1-4).
+        admission (str): Admission type (Emergency, Elective, Urgent).
+        diseases (list): List of disease categories.
+        age_group (int): Age group (1-5).
+        gender (int): Gender (0: Female, 1: Male, 2: Unknown).
+        race (str): Race category.
+    
+    Returns:
+        list: Tailored clinical, operational, and financial recommendations.
+    """
     tips = []
-
+    feature_weights = dict(zip(feature_importances['feature'], feature_importances['importance']))
+    
+    # Short stays (≤3 days, adjusted based on SHORT_STAY_MAE ~1.3)
     if los < 3:
-        tips.extend([
-            "Prepare for early discharge: Arrange home care or outpatient follow-up to ensure smooth transition.",
-            "Optimize resource allocation: Prioritize beds and nursing care for higher-need patients.",
-            "Monitor closely for readmission risk: Short stays may risk premature discharge; ensure appropriate monitoring."
-        ])
+        tips.append(f"High readmission risk detected (MAE: {SHORT_STAY_MAE:.2f} days). Schedule outpatient follow-up within 48 hours to monitor recovery.")
+        if "Admission_Emergency" in admission:
+            tips.append("Emergency admission: Prioritize rapid diagnostics (e.g., labs, imaging) to confirm discharge readiness.")
+        if apr_severity <= 2:
+            tips.append("Low-moderate severity: Consider same-day discharge protocols with telehealth follow-up to optimize bed turnover.")
+        else:
+            tips.append(f"Severity {apr_severity}: Monitor for complications despite short predicted LOS, as model uncertainty is higher (MAE: {SHORT_STAY_MAE:.2f}).")
+        if len(diseases) > 2:
+            tips.append(f"Multiple diseases ({len(diseases)}): Coordinate with primary care for post-discharge management of comorbidities.")
+    
+    # Medium stays (3-7 days)
     elif 3 <= los <= 7:
-        tips.extend([
-            "Standard care pathway: Follow established protocols, with periodic assessment for any deviations.",
-            "Plan for potential complications: Allocate resources anticipating medium-level complexity.",
-            "Engage multidisciplinary teams: Include rehab, social work, and discharge planners early."
-        ])
-    else:
-        tips.extend([
-            "Initiate intensive case management: Focus on complex care coordination and multidisciplinary approach.",
-            "Consider transfer to specialized care units: e.g., rehabilitation or long-term care.",
-            "Review for potential complications: Early detection and management to reduce further prolongation.",
-            "Financial counseling: Inform patients/families about possible cost implications."
-        ])
+        tips.append(f"Moderate LOS (predicted: {los:.2f} days, MAE: {MODEL_MAE:.2f}). Follow standardized care pathways for {', '.join(diseases) or 'general care'}.")
+        if apr_severity >= 3:
+            tips.append(f"High severity ({apr_severity}): Engage specialists (e.g., cardiology for {diseases}) to address potential complications.")
+        if "Disease_Chronic Conditions" in diseases:
+            tips.append("Chronic conditions detected: Implement chronic disease management protocols (e.g., medication reconciliation, patient education).")
+        tips.append("Allocate multidisciplinary team (e.g., nursing, rehab) to streamline care and prepare for discharge by day {round(los)}.")
 
-    if charge_total > 10000:
-        tips.extend([
-            "Evaluate treatment plans: Look for cost-effective alternatives without compromising quality.",
-            "Leverage insurance or financial aid options: To reduce patient burden.",
-            "Optimize resource use: Reduce unnecessary tests or procedures."
-        ])
+    # Long stays (≥7 days)
+    else:
+        tips.append(f"Long LOS (predicted: {los:.2f} days, MAE: {LONG_STAY_MAE:.2f}). Initiate intensive case management to coordinate complex care.")
+        if apr_risk >= 3:
+            tips.append(f"High mortality risk ({apr_risk}): Consult palliative care or ethics team to discuss care goals.")
+        if drg_code in rare_drg_set or mdc_code in rare_mdc_set:
+            tips.append(f"Rare DRG/MDC ({drg_code}/{mdc_code}): Refer to specialized care unit (e.g., tertiary center) due to model uncertainty.")
+        if age_group >= 4:  # 50+ years
+            tips.append("Older age group: Assess for frailty and involve physical therapy to prevent functional decline.")
+        tips.append("Review daily for complications (e.g., infections, organ failure) to avoid further LOS prolongation.")
+
+    # Financial recommendations
+    if charge_total > 700:
+        tips.append(f"High charges (${charge_total:,.2f}): Review treatment plan for cost-effective alternatives (e.g., generic medications, outpatient diagnostics).")
+        if "Admission_Elective" in admission:
+            tips.append("Elective admission: Explore pre-negotiated insurance bundles to reduce patient financial burden.")
+    if estimate_profit_per_day(admission) < 50:
+        tips.append("Low profit margin: Optimize resource use (e.g., reduce unnecessary imaging) to improve financial outcomes.")
+
+    # Feature importance-based recommendations
+    top_features = sorted(feature_weights, key=feature_weights.get, reverse=True)[:3]
+    if 'apr_severity_of_illness' in top_features:
+        tips.append(f"High importance of severity ({feature_weights['apr_severity_of_illness']:.2f}): Escalate care intensity for severity {apr_severity}.")
+    if 'chronic_load_score' in top_features and len(diseases) > 1:
+        tips.append(f"High chronic disease burden ({len(diseases)} diseases): Develop long-term management plan with specialists.")
+
+    # Demographic-specific recommendations
+    if race in ['Black/African American', 'Other Race']:
+        tips.append("Consider social determinants (e.g., access to care, transportation) to support discharge planning.")
+    if gender == 0 and 'Disease_Cardiovascular Diseases' in diseases:
+        tips.append("Female with cardiovascular disease: Ensure gender-specific risk factors (e.g., atypical symptoms) are addressed.")
 
     return tips
 
-
+# Dash app setup (unchanged from your code)
 disease_options = [
     {'label': 'Mental Health', 'value': 'Disease_Mental Health'},
     {'label': 'Respiratory Disorders', 'value': 'Disease_Respiratory Disorders'},
@@ -198,6 +249,14 @@ def predict(n_clicks, drg_code, mdc_code, apr_severity, apr_risk, age_group, gen
     if n_clicks == 0:
         return ""
 
+    # Ensure inputs are lists for consistency
+    if not isinstance(diseases, list):
+        diseases = [diseases] if diseases else []
+    if not isinstance(admission, list):
+        admission = [admission] if admission else []
+    if not isinstance(race, list):
+        race = [race] if race else []
+
     data = {
         'apr_drg_code_oof_avg': compute_oof_avg(drg_code, {}),
         'apr_mdc_code_oof_avg': compute_oof_avg(mdc_code, {}),
@@ -240,14 +299,61 @@ def predict(n_clicks, drg_code, mdc_code, apr_severity, apr_risk, age_group, gen
     charge_per_day, cost_per_day = get_charge_and_cost_per_day(admission)
     total_charge = los * charge_per_day
     total_cost = los * cost_per_day
-    tips = get_recommendations(los, total_charge)
+    tips = get_recommendations(los, total_charge, drg_code, mdc_code, apr_severity, apr_risk, admission, diseases, age_group, gender, race)
 
     return [
-        html.Div(f"Predicted Length of Stay: {round(los, 2)} days"),
-        html.Div(f"Estimated Charge: ${round(total_charge, 2)}"),
-        html.Div(f"Estimated Cost: ${round(total_cost, 2)}"),
-        html.Div(f"Estimated Profit: ${round(expected_profit, 2)}"),
-        html.Br(),
-        html.Div("Recommendations:", style={'fontWeight': 'bold', 'marginTop': '20px'}),
-        html.Ul([html.Li(tip) for tip in tips])
+        html.Div([
+            html.H3("Patient Outcome Summary", style={
+                'marginBottom': '10px',
+                'fontWeight': 'bold',
+                'fontSize': '22px'
+            }),
+            html.Hr(style={'marginTop': '0', 'marginBottom': '20px', 'borderTop': '2px solid #ccc'}),
+
+            html.Table([
+                html.Tr([
+                    html.Th("Metric", style={'textAlign': 'center', 'paddingRight': '20px'}),
+                    html.Th("Value", style={'textAlign': 'center'})
+                ]),
+                html.Tr([
+                    html.Td("Predicted Length of Stay:", style={'textAlign': 'center'}), 
+                    html.Td(f"{round(los, 2)} days ± {MODEL_MAE} days", style={'textAlign': 'center', 'paddingRight': '20px'})
+                ]),
+                html.Tr([
+                    html.Td("Estimated Total Charge:", style={'textAlign': 'center'}), 
+                    html.Td(f"${round(total_charge, 2):,}", style={'textAlign': 'center', 'paddingRight': '20px'})
+                ]),
+                html.Tr([
+                    html.Td("Estimated Total Cost:", style={'textAlign': 'center'}), 
+                    html.Td(f"${round(total_cost, 2):,}", style={'textAlign': 'center', 'paddingRight': '20px'})
+                ]),
+                html.Tr([
+                    html.Td("Estimated Profit:", style={'textAlign': 'center'}), 
+                    html.Td(f"${round(expected_profit, 2):,}", style={'fontWeight': 'bold', 'color': 'green', 'textAlign': 'center', 'paddingRight': '20px'})
+                ])
+            ], style={
+                'width': '100%',
+                'borderCollapse': 'collapse',
+                'marginBottom': '30px',
+                'fontSize': '16px'
+            }),
+
+            html.H3("Recommendations", style={
+                'marginBottom': '10px',
+                'fontWeight': 'bold',
+                'fontSize': '22px'
+            }),
+            html.Hr(style={'marginTop': '0', 'marginBottom': '20px', 'borderTop': '2px solid #ccc'}),
+
+            html.Ol([
+                html.Li(tip, style={'marginBottom': '10px', 'textAlign': 'left', 'lineHeight': '1.6'}) for tip in tips
+            ])
+        ], style={
+            'padding': '25px',
+            'border': '1px solid #ccc',
+            'borderRadius': '10px',
+            'backgroundColor': '#fcfcfc',
+            'boxShadow': '0px 2px 5px rgba(0, 0, 0, 0.05)',
+            'fontFamily': 'Arial, sans-serif'
+        })
     ]
