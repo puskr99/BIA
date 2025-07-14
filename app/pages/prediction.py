@@ -93,7 +93,7 @@ def get_recommendations(los, charge_total, drg_code, mdc_code, apr_severity, apr
             tips.append(f"High severity ({apr_severity}): Engage specialists (e.g., cardiology for {diseases}) to address potential complications.")
         if "Disease_Chronic Conditions" in diseases:
             tips.append("Chronic conditions detected: Implement chronic disease management protocols (e.g., medication reconciliation, patient education).")
-        tips.append("Allocate multidisciplinary team (e.g., nursing, rehab) to streamline care and prepare for discharge by day {round(los)}.")
+        tips.append(f"Allocate multidisciplinary team (e.g., nursing, rehab) to streamline care and prepare for discharge by day {round(los)}.")
 
     # Long stays (≥7 days)
     else:
