@@ -1,0 +1,65 @@
+/* Base nav link style */
+.nav-link {
+    font-weight: 500;
+    color: #cccccc !important;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  /* Hover */
+  .nav-link:hover {
+    background-color: #2a2a3d !important;
+    color: #ffffff !important;
+  }
+  
+  /* Active (clicked) */
+  .nav-link.active {
+    background-color: #3d3d5c !important;
+    color: #ffffff !important;
+    font-weight: 600;
+  }
+  
+  /* Icon color in active and hover */
+  .nav-link svg {
+    fill: #cccccc !important;
+  }
+  .nav-link:hover svg,
+  .nav-link.active svg {
+    fill: #ffffff !important;
+  }
+  
+  /* Section titles */
+  .subsection {
+    color: #e0e0e0 !important;  /* light gray */
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+  }
+  
+  /* Top Title: "Your Dashboard" */
+  .titlebar {
+    color: #e0e0e0 !important;  /* bright white for contrast */
+    font-size: 1.55rem;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+  }
+  
+  .card-title {
+    border-bottom: 2px solid #555;
+    padding-bottom: 0.4rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: #1e1e2f;
+  }
+  
+  /* .card1:hover {
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      transform: translateY(-5px);
+      cursor: pointer;
+  } */
+  
