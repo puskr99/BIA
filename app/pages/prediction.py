@@ -152,7 +152,7 @@ race_options = [
 admission_options = [
     {'label': 'Emergency', 'value': 'Admission_Emergency'},
     {'label': 'Elective', 'value': 'Admission_Elective'},
-    {'label': 'Urgent', 'value': 'Admission_Urgent'}
+    {'label': 'Urgent', 'value': 'Admission_Urgent'},
 ]
 
 dash.register_page(__name__, path="/prediction", name="Prediction")
@@ -166,11 +166,11 @@ layout = html.Div([
         html.Div([
             html.Div([
                 html.Label("APR DRG Code", style={'marginBottom': '5px', 'fontWeight': '500'}),
-                dcc.Input(id='drg_code', type='number', value=100, step=1,
+                dcc.Input(id='drg_code', type='number', value=100, step=1,min=1, max=999,
                           style={'width': '100%', 'padding': '8px', 'marginBottom': '15px'}),
 
                 html.Label("APR MDC Code", style={'marginBottom': '5px', 'fontWeight': '500'}),
-                dcc.Input(id='mdc_code', type='number', value=20, step=1,
+                dcc.Input(id='mdc_code', type='number', value=20, step=1,min=1, max=30,
                           style={'width': '100%', 'padding': '8px', 'marginBottom': '15px'}),
 
                 html.Label("APR Severity of Illness", style={'marginBottom': '5px', 'fontWeight': '500'}),

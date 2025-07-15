@@ -22,18 +22,18 @@ layout = html.Div([
         html.H3("Meet the Team", className="text-center mb-4"),
         html.Div([
             html.Div([
-                html.Img(src="assets/Patsakorn.jpg", className="img-fluid rounded-circle shadow-lg", style={"width": "150px", "height": "150px", "margin-bottom": "10px"}),
+                html.Img(src="assets/girl.jpg", className="img-fluid rounded-circle shadow-lg", style={"width": "150px", "height": "150px", "margin-bottom": "10px"}),
                 html.P("Cassandra Chang", className="h5 text-center mb-2"),
                 html.P("Data Scientist", className="text-muted text-center"),
             ], className="col-md-6 d-flex flex-column align-items-center mb-4"),
             html.Div([
-                html.Img(src="assets/Patsakorn.jpg", className="img-fluid rounded-circle shadow-lg", style={"width": "150px", "height": "150px", "margin-bottom": "10px"}),
+                html.Img(src="assets/boy.jpg", className="img-fluid rounded-circle shadow-lg", style={"width": "150px", "height": "150px", "margin-bottom": "10px"}),
                 html.P("Puskar Adhikari", className="h5 text-center mb-2"),
                 html.P("Data Scientist", className="text-muted text-center"),
             ], className="col-md-6 d-flex flex-column align-items-center mb-4"),
             
             html.Div([
-                html.Img(src="assets/shree.jpg", className="img-fluid rounded-circle shadow-lg", style={"width": "150px", "height": "150px", "margin-bottom": "10px"}),
+                html.Img(src="assets/girl.jpg", className="img-fluid rounded-circle shadow-lg", style={"width": "150px", "height": "150px", "margin-bottom": "10px"}),
                 html.P("Shreeyukta Pradhanang", className="h5 text-center mb-2"),
                 html.P("Data Analyst & Web Developer", className="text-muted text-center"),
             ], className="col-md-6 d-flex flex-column align-items-center mb-4"),
