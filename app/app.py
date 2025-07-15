@@ -29,13 +29,9 @@ sidebar = html.Div([
 
     dbc.Nav([
         dbc.NavLink(
-            [DashIconify(icon="mdi:home", width=20, className="me-2"), "Overview"],
+            [DashIconify(icon="mdi:home", width=20, className="me-2"), "Dashboard"],
             href="/", active="exact"
-        ),
-        dbc.NavLink(
-            [DashIconify(icon="mdi:chart-timeline-variant", width=20, className="me-2"), "Analytics"],
-            href="/analytics", active="exact"
-        ),
+        )
     ], vertical=True, pills=True, className="mb-4"),
 
     html.H6("Model", className="subsection fw-bold"),

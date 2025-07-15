@@ -7,12 +7,14 @@ import joblib
 # Load model and data
 model = joblib.load("code/los_model")
 profit_map = joblib.load("code/profit_map.pkl")
+drg_oof_map = joblib.load("code/drg_oof_map.pkl")
+mdc_oof_map = joblib.load("code/mdc_oof_map.pkl")
 feature_importances = pd.read_csv("code/feat_imp.csv") 
 
 # Example rare code sets and encoders (replace with actual from training)
 rare_drg_set = {999, 888}  # Example
 rare_mdc_set = {77, 88}  # Example
-global_los_mean = 2.5  # Fallback for missing encoding
+global_los_mean = 6.24  # Fallback for missing encoding
 
 # Model error metrics (from cross-validation)
 MODEL_MAE = 0.86 # Mean Absolute Error
@@ -186,7 +188,6 @@ layout = html.Div([
                     {'label': 'Major', 'value': 3},
                     {'label': 'Extreme', 'value': 4}
                 ], value=2, style={'marginBottom': '15px'}),
-
                 html.Label("Age Group", style={'marginBottom': '5px', 'fontWeight': '500'}),
                 dcc.Dropdown(id='age_group', options=[
                     {'label': '0 to 17', 'value': 1},
@@ -196,15 +197,17 @@ layout = html.Div([
                     {'label': '70 or Older', 'value': 5}
                 ], value=2, style={'marginBottom': '15px'}),
 
+                
+            ], style={'width': '48%', 'display': 'inline-block', 'paddingRight': '2%'}),
+
+            html.Div([
+
                 html.Label("Gender", style={'marginBottom': '5px', 'fontWeight': '500'}),
                 dcc.Dropdown(id='gender', options=[
                     {'label': 'Female', 'value': 0},
                     {'label': 'Male', 'value': 1},
                     {'label': 'Others', 'value': 2}
-                ], value=1, style={'marginBottom': '15px'})
-            ], style={'width': '48%', 'display': 'inline-block', 'paddingRight': '2%'}),
-
-            html.Div([
+                ], value=1, style={'marginBottom': '15px'}),
                 html.Label("Admission Type", style={'marginBottom': '5px', 'fontWeight': '500'}),
                 dcc.Dropdown(id='admission', options=admission_options, multi=False, style={'marginBottom': '15px'}),
 
@@ -258,8 +261,8 @@ def predict(n_clicks, drg_code, mdc_code, apr_severity, apr_risk, age_group, gen
         race = [race] if race else []
 
     data = {
-        'apr_drg_code_oof_avg': compute_oof_avg(drg_code, {}),
-        'apr_mdc_code_oof_avg': compute_oof_avg(mdc_code, {}),
+        'apr_drg_code_oof_avg': compute_oof_avg(drg_code, drg_oof_map),
+        'apr_mdc_code_oof_avg': compute_oof_avg(mdc_code, mdc_oof_map),
         'apr_severity_of_illness': apr_severity,
         'apr_risk_of_mortality': apr_risk,
         'age_group': age_group,

@@ -220,7 +220,7 @@ layout = html.Div([
     # html.H3("Power BI Dashboard", className="mb-4"),
 
     html.Iframe(
-        src="https://app.powerbi.com/groups/me/reports/90b7d25c-9eae-491f-9ccd-f1a569abce0d/688b994462802eac1005?experience=power-bi",  # ← Replace with your actual Power BI link
+        src="https://app.powerbi.com/view?r=eyJrIjoiYTJkOGNlMjgtNTkyYi00MDQ5LWI1ODMtMTI3YjlkNDY5Y2ZmIiwidCI6Ijk5ZWViMDA5LWU3YTItNDdiNi05ZGVkLTAyOGNkY2MzMDBlNiIsImMiOjEwfQ%3D%3D" ,  # ← Replace with your actual Power BI link
         width="100%",
         height="650px",
         style={"border": "none"}
